@@ -1,7 +1,6 @@
 // PROBLEMS / TODO:
 // button to change the sign
 // link the display with the current focused element/result
-// A/C button
 // delete button
 
 
@@ -18,17 +17,26 @@ let equal = document.querySelector(".equal");
 
 // --------------------------------------------------------
 // GLOBAL VARIABLES
-let firstVar = true;
-let var1 = "";
-let var2 = "";
-let op = "";
-let result = "";
-let lastInput = "";
+    let firstVar;
+    let var1;
+    let var2;
+    let op;
+    let result;
+    let lastInput;
 
 // --------------------------------------------------------
 // MAIN FUNCTION
 
 function calculator() {
+    firstVar = true;
+    var1 = "";
+    var2 = "";
+    op = "";
+    result = "";
+    lastInput = "";
+
+    // CLEAR
+    clear.addEventListener("click", restart)
     // DIGITS
     digits.forEach((digit) => {
         digit.addEventListener("click", digitPressed);
@@ -39,8 +47,7 @@ function calculator() {
     });
     // EQUAL SIGN
     equal.addEventListener('click', equalSignPressed);
-    // CLEAR
-    clear.addEventListener("click", restart)
+    
 };
 
 // --------------------------------------------------------
@@ -126,16 +133,10 @@ function equalSignPressed(e) {
 
 // the user press A/C 
 function restart() {
-    console.log("restart")
-    let firstVar = true;
-    let var1 = "";
-    let var2 = "";
-    let op = "";
-    let result = "";
-    let lastInput = "";
     calculator()
 
     // Test -----------------
+
     console.log("clear click -------------------------")
     console.log("last input type: " + lastInput)
     console.log("var1: " + var1);
