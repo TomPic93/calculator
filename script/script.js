@@ -1,6 +1,5 @@
 // PROBLEMS / TODO:
 // button to change the sign
-// multiple operation signs typing make change first var and breaks the code
 // link the display with the current focused element/result
 
 
@@ -22,11 +21,13 @@ let var1 = "";
 let var2 = "";
 let op = "";
 let result = "";
+let lastInput = "";
 
 // --------------------------------------------------------
 // MAIN FUNCTION
 
 function calculator() {
+    // DIGITS
     digits.forEach((digit) => {
         digit.addEventListener("click", (e) => {
             if (firstVar) {  // if we're working with the first variable (true), add the digit input to var1
@@ -35,9 +36,12 @@ function calculator() {
             } else {  // if we're working with the second variable (false), add the digit input to var2
                 var2 += e.target.getAttribute("data-value");
             };
+            // variable used when clicking an operator
+            lastInput = "digit";
 
             // Test -----------------
             console.log("digit click -------------------------")
+            console.log("last input type: " + lastInput)
             console.log("var1: " + var1);
             console.log("var2: " + var2);
             console.log("op: " + op);
@@ -45,23 +49,34 @@ function calculator() {
             console.log("result: " + result);
         });
     });
-
+    // OPERATORS
     operators.forEach((operator) => {
         operator.addEventListener('click', (e) => {
-            
-            if (result) {  // if the user, after one operation finished with "=", wants to continue using the result as the starting point for a new operation, pressing a operation sign will start a new cycle assigning the previous operation's result to var1
+            // if the user, after one operation finished with "=" so the result variable results TRUE, wants to continue using
+            // the result as the starting point for a new operation, pressing a operation sign will start a new cycle assigning
+            // the previous operation's result to var1
+            if (result) {  
                 var1 = result;
             };
-            if (var1 && var2) {  // if the user wants to concatenate multiple operations (so a value has already been assigned to var1 and var2), the previous operation's result is assigned to var1 and var2 is initialized for the next digit
+            // if the user wants to concatenate multiple operations (so a value has already been assigned to var1 and var2),
+            // the previous operation's result is assigned to var1 and var2 is initialized for the next digit
+            if (var1 && var2) {  
                 var1 = operate(parseInt(var1), parseInt(var2), op);
                 var2 = "";
+                // when the condition is true, this changes only to equilibrate the second change below
                 firstVar = !firstVar;
-            }
-            op = e.target.getAttribute("data-value");  // the operation the user wants to perform is assigned to the "op" variable
-            firstVar = !firstVar;
-
+            };
+            // the operation the user wants to perform is assigned to the "op" variable
+            op = e.target.getAttribute("data-value");  
+            // the user can change the operator (es. + -> /) without changing the variable he's working on (var2)
+            if (lastInput != "operator") {
+                firstVar = !firstVar;
+            };
+            lastInput = "operator";
+            
             // Test -----------------
             console.log("operator click -------------------------")
+            console.log("last input type: " +lastInput)
             console.log("var1: " + var1);
             console.log("var2: " + var2);
             console.log("op: " + op);
@@ -69,7 +84,7 @@ function calculator() {
             console.log("result: " + result);
         });
     });
-
+    // EQUAL SIGN
     equal.addEventListener('click', () => {
         result = operate(parseInt(var1), parseInt(var2), op);
         // all the variables are re-initialized for the next operation
@@ -80,6 +95,7 @@ function calculator() {
 
         // Test -----------------
         console.log("= click -------------------------")
+        console.log("last input type: " + lastInput)
         console.log("var1: " + var1);
         console.log("var2: " + var2);
         console.log("op: " + op);
@@ -123,10 +139,6 @@ function divide(val1, val2) {
     return val1 / val2
 };
 
-
-
 // --------------------------------------------------------
-
-
 
 calculator()
