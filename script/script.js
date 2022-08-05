@@ -1,6 +1,5 @@
 // PROBLEMS / TODO:
 // button to change the sign
-// link the display with the current focused element/result
 // delete button
 
 
@@ -17,12 +16,13 @@ let equal = document.querySelector(".equal");
 
 // --------------------------------------------------------
 // GLOBAL VARIABLES
-    let firstVar;
-    let var1;
-    let var2;
-    let op;
-    let result;
-    let lastInput;
+let firstVar; // toggle this boolean variable to change the target variable (var1 / var2)
+let var1;
+let var2;
+let op; // holds the operation to be performed on the variables
+let result;
+let lastInput; // holds last input's type (digit, operator or equal sign)
+    
 
 // --------------------------------------------------------
 // MAIN FUNCTION
@@ -35,18 +35,20 @@ function calculator() {
     result = "";
     lastInput = "";
 
+    // Initial display
+    toDisplay(0);
     // CLEAR
     clear.addEventListener("click", restart)
     // DIGITS
     digits.forEach((digit) => {
-        digit.addEventListener("click", digitPressed);
+        digit.addEventListener("click", digitClicked);
     });
     // OPERATORS
     operators.forEach((operator) => {
-        operator.addEventListener('click', operatorPressed);
+        operator.addEventListener('click', operatorClicked);
     });
     // EQUAL SIGN
-    equal.addEventListener('click', equalSignPressed);
+    equal.addEventListener('click', equalSignClicked);
     
 };
 
@@ -54,7 +56,7 @@ function calculator() {
 // OTHER FUNCTIONS
 
 // the user press a operator sign (+,-,*,/)
-function operatorPressed(e) {
+function operatorClicked(e) {
     // if the user, after one operation finished with "=" so the result variable results TRUE, wants to continue using
     // the result as the starting point for a new operation, pressing a operation sign will start a new cycle assigning
     // the previous operation's result to var1
@@ -66,6 +68,7 @@ function operatorPressed(e) {
     if (var1 && var2) {
         var1 = operate(parseInt(var1), parseInt(var2), op);
         var2 = "";
+        toDisplay(var1)
         // when the condition is true, this changes only to equilibrate the second change below
         firstVar = !firstVar;
     };
@@ -88,12 +91,14 @@ function operatorPressed(e) {
 }
 
 // the user press a digit (0-9)
-function digitPressed(e) {
+function digitClicked(e) {
     if (firstVar) {  // if we're working with the first variable (true), add the digit input to var1
         result = 0;  // after one operation finished with "=", if the user wants to starts a new one and starts typing, the previous operation's result is re-initialized 
         var1 += e.target.getAttribute("data-value");
+        toDisplay(var1)
     } else {  // if we're working with the second variable (false), add the digit input to var2
         var2 += e.target.getAttribute("data-value");
+        toDisplay(var2)
     };
     // variable used when clicking an operator
     lastInput = "digit";
@@ -110,9 +115,10 @@ function digitPressed(e) {
 }
 
 // the user press the equal sign
-function equalSignPressed(e) {
+function equalSignClicked() {
     if (var1 && var2 && op) {
         result = operate(parseInt(var1), parseInt(var2), op);
+        toDisplay(result);
         // all the variables are re-initialized for the next operation
         op = "";
         var1 = "";
@@ -148,12 +154,11 @@ function restart() {
 
 // takes two input values and one operation function (below) and return the result
 function operate(input1, input2, operationToDo) {
-    // based on the values of "storage", call one of the operation functions below with the two digit values stored
     return window[operationToDo](input1, input2);
 };
 
 // display the argument in the calculator display
-function displayResult(toDisplay) {
+function toDisplay(toDisplay) {
     display.textContent = toDisplay;
 }
 
