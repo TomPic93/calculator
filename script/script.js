@@ -1,11 +1,13 @@
 // PROBLEMS / TODO:
-// button to change the sign
 // delete button
+// dot button for float numbers
+// -> there should be a "focus" variable that point to the variable we could modify with the functions above
+
 
 
 // --------------------------------------------------------
 // DOM VARIABLES
-let changeSign = document.querySelector("#changeSign");
+let changeSignBtn = document.querySelector("#changeSign");
 let cancel = document.querySelector("#cancel");
 let clear = document.querySelector("#clear");
 let display = document.querySelector("#display");
@@ -22,7 +24,7 @@ let var2;
 let op; // holds the operation to be performed on the variables
 let result;
 let lastInput; // holds last input's type (digit, operator or equal sign)
-    
+let focusedItem;  // holds the item we're working on (var1, var2 or result)
 
 // --------------------------------------------------------
 // MAIN FUNCTION
@@ -34,9 +36,12 @@ function calculator() {
     op = "";
     result = "";
     lastInput = "";
+    focusedItem = "";
 
     // Initial display
     toDisplay(0);
+    // CHANGE SIGN
+    changeSignBtn.addEventListener("click", changeSign);
     // CLEAR
     clear.addEventListener("click", restart)
     // DIGITS
@@ -62,6 +67,7 @@ function operatorClicked(e) {
     // the previous operation's result to var1
     if (result) {
         var1 = result;
+        result = "";
     };
     // if the user wants to concatenate multiple operations (so a value has already been assigned to var1 and var2),
     // the previous operation's result is assigned to var1 and var2 is initialized for the next digit
@@ -79,6 +85,7 @@ function operatorClicked(e) {
         firstVar = !firstVar;
     };
     lastInput = "operator";
+    
 
     // Test -----------------
     console.log("operator click -------------------------")
@@ -96,9 +103,12 @@ function digitClicked(e) {
         result = 0;  // after one operation finished with "=", if the user wants to starts a new one and starts typing, the previous operation's result is re-initialized 
         var1 += e.target.getAttribute("data-value");
         toDisplay(var1)
+        focusedItem = "var1";
+
     } else {  // if we're working with the second variable (false), add the digit input to var2
         var2 += e.target.getAttribute("data-value");
         toDisplay(var2)
+        focusedItem = "var2";
     };
     // variable used when clicking an operator
     lastInput = "digit";
@@ -125,6 +135,8 @@ function equalSignClicked() {
         var2 = "";
         firstVar = !firstVar;
     }
+    lastInput = "equalSign";
+    focusedItem = "result";
 
 
     // Test -----------------
@@ -160,6 +172,23 @@ function operate(input1, input2, operationToDo) {
 // display the argument in the calculator display
 function toDisplay(toDisplay) {
     display.textContent = toDisplay;
+}
+
+// change the sign of the focused item
+function changeSign() {
+    switch (focusedItem) {
+        case "var1":
+            var1 *= -1;
+            toDisplay(var1)
+            break;
+        case "var2":
+            var2 *= -1;
+            toDisplay(var2)
+            break;
+        case "result":
+            result *= -1;
+            toDisplay(result)
+    }
 }
 
 
