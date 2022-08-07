@@ -1,9 +1,6 @@
-// PROBLEMS / TODO:
-// delete button
-// dot button for float numbers
-// -> there should be a "focus" variable that point to the variable we could modify with the functions above
-
-
+// TO DO
+// multiple + digit return NaN, the same if multiple -
+// implement decimal function
 
 // --------------------------------------------------------
 // DOM VARIABLES
@@ -15,154 +12,109 @@ let buttons = document.querySelectorAll(".button");
 let digits = document.querySelectorAll(".digit")
 let operators = document.querySelectorAll(".operator");
 let equal = document.querySelector(".equal");
+let dot = document.querySelector(".dot");
 
 // --------------------------------------------------------
 // GLOBAL VARIABLES
-let firstVar; // toggle this boolean variable to change the target variable (var1 / var2)
-let var1;
-let var2;
+let var1;  // holds the operation's first variable (number)
+let var2;  // holds the operation's second variable (number)
 let op; // holds the operation to be performed on the variables
-let result;
-let lastInput; // holds last input's type (digit, operator or equal sign)
 let focusedItem;  // holds the item we're working on (var1, var2 or result)
+let afterEqual;  // boolean: determine if a precedent operation has been made
 
 // --------------------------------------------------------
 // MAIN FUNCTION
 
 function calculator() {
-    firstVar = true;
+    display.textContent = "0"
     var1 = "";
     var2 = "";
     op = "";
-    result = "";
-    lastInput = "";
     focusedItem = "";
+    afterEqual = false;
 
-    // Initial display
-    toDisplay(0);
-    // CHANGE SIGN
-    changeSignBtn.addEventListener("click", changeSign);
-    // CLEAR
-    clear.addEventListener("click", restart)
-    // DIGITS
-    digits.forEach((digit) => {
-        digit.addEventListener("click", digitClicked);
-    });
-    // OPERATORS
-    operators.forEach((operator) => {
-        operator.addEventListener('click', operatorClicked);
-    });
-    // EQUAL SIGN
-    equal.addEventListener('click', equalSignClicked);
     
+    // CLEAR (A/C)
+    clear.addEventListener("click", restartClick)
+    // CANCEL (C)
+    cancel.addEventListener("click", cancelClicked)
+    // CHANGE SIGN (+/-)
+    changeSignBtn.addEventListener("click", changeSignClick);
+    // DIGITS (0-9)
+    digits.forEach(digit => digit.addEventListener("click", digitClick));
+    // OPERATORS (+,-,*,/)
+    operators.forEach(operator => operator.addEventListener('click', operatorClick));
+    // DECIMAL DOT (.)
+    dot.addEventListener("click", decimalDotClick);
+    // EQUAL SIGN (=)
+    equal.addEventListener('click', equalSignClick);
+    // DISPLAY
+    buttons.forEach((button) => button.addEventListener('click', toDisplay));
+
+
+    // TEST
+    buttons.forEach((button) => {
+        button.addEventListener('click', test);
+    })
+};
+
+// --------------------------------------------------------
+// BUTTONS FUNCTIONS
+
+function digitClick(e) {
+    if (afterEqual) {
+        focusedItem = "";
+        afterEqual = false;
+    };
+    focusedItem += e.target.getAttribute("data-value");
+};
+
+function operatorClick(e) {
+    // concatenate operations
+    if (var1 && op) {
+        var2 = focusedItem;
+        var1 = operate(parseInt(var1), parseInt(var2), op);
+        focusedItem = var1;
+        op = e.target.getAttribute("data-value");
+        var2 = "";
+        afterEqual = true;
+    // first operation
+    } else {
+        var1 = focusedItem;
+        focusedItem = "";
+        op = e.target.getAttribute("data-value");
+        afterEqual = false;
+    }
+};
+
+function equalSignClick() {
+    if (!afterEqual) {
+        var2 = focusedItem;
+        focusedItem = operate(parseInt(var1), parseInt(var2), op);
+        op = "";
+        var2 = "";
+        afterEqual = true;
+    };
+};
+
+function restartClick() {
+    calculator()
+};
+
+function changeSignClick() {
+    focusedItem *= -1;
+};
+
+function decimalDotClick() {
+    
+};
+
+function cancelClicked() {
+
 };
 
 // --------------------------------------------------------
 // OTHER FUNCTIONS
-
-// the user press a operator sign (+,-,*,/)
-function operatorClicked(e) {
-    // if the user, after one operation finished with "=" so the result variable results TRUE, wants to continue using
-    // the result as the starting point for a new operation, pressing a operation sign will start a new cycle assigning
-    // the previous operation's result to var1
-    if (result) {
-        var1 = result;
-        result = "";
-    };
-    // if the user wants to concatenate multiple operations (so a value has already been assigned to var1 and var2),
-    // the previous operation's result is assigned to var1 and var2 is initialized for the next digit
-    if (var1 && var2) {
-        var1 = operate(parseInt(var1), parseInt(var2), op);
-        var2 = "";
-        toDisplay(var1)
-        // when the condition is true, this changes only to equilibrate the second change below
-        firstVar = !firstVar;
-    };
-    // the operation the user wants to perform is assigned to the "op" variable
-    op = e.target.getAttribute("data-value");
-    // the user can change the operator (es. + -> /) without changing the variable he's working on (var2)
-    if (lastInput != "operator") {
-        firstVar = !firstVar;
-    };
-    lastInput = "operator";
-    
-
-    // Test -----------------
-    console.log("operator click -------------------------")
-    console.log("last input type: " + lastInput)
-    console.log("var1: " + var1);
-    console.log("var2: " + var2);
-    console.log("op: " + op);
-    console.log("firstVar: " + firstVar);
-    console.log("result: " + result);
-}
-
-// the user press a digit (0-9)
-function digitClicked(e) {
-    if (firstVar) {  // if we're working with the first variable (true), add the digit input to var1
-        result = 0;  // after one operation finished with "=", if the user wants to starts a new one and starts typing, the previous operation's result is re-initialized 
-        var1 += e.target.getAttribute("data-value");
-        toDisplay(var1)
-        focusedItem = "var1";
-
-    } else {  // if we're working with the second variable (false), add the digit input to var2
-        var2 += e.target.getAttribute("data-value");
-        toDisplay(var2)
-        focusedItem = "var2";
-    };
-    // variable used when clicking an operator
-    lastInput = "digit";
-
-    // Test -----------------
-    console.log("digit click -------------------------")
-    console.log("last input type: " + lastInput)
-    console.log("var1: " + var1);
-    console.log("var2: " + var2);
-    console.log("op: " + op);
-    console.log("firstVar: " + firstVar);
-    console.log("result: " + result);
-
-}
-
-// the user press the equal sign
-function equalSignClicked() {
-    if (var1 && var2 && op) {
-        result = operate(parseInt(var1), parseInt(var2), op);
-        toDisplay(result);
-        // all the variables are re-initialized for the next operation
-        op = "";
-        var1 = "";
-        var2 = "";
-        firstVar = !firstVar;
-    }
-    lastInput = "equalSign";
-    focusedItem = "result";
-
-
-    // Test -----------------
-    console.log("= click -------------------------")
-    console.log("last input type: " + lastInput)
-    console.log("var1: " + var1);
-    console.log("var2: " + var2);
-    console.log("op: " + op);
-    console.log("firstVar: " + firstVar);
-    console.log("result: " + result);
-}
-
-// the user press A/C 
-function restart() {
-    calculator()
-
-    // Test -----------------
-
-    console.log("clear click -------------------------")
-    console.log("last input type: " + lastInput)
-    console.log("var1: " + var1);
-    console.log("var2: " + var2);
-    console.log("op: " + op);
-    console.log("firstVar: " + firstVar);
-    console.log("result: " + result);
-}
 
 // takes two input values and one operation function (below) and return the result
 function operate(input1, input2, operationToDo) {
@@ -170,27 +122,12 @@ function operate(input1, input2, operationToDo) {
 };
 
 // display the argument in the calculator display
-function toDisplay(toDisplay) {
-    display.textContent = toDisplay;
-}
-
-// change the sign of the focused item
-function changeSign() {
-    switch (focusedItem) {
-        case "var1":
-            var1 *= -1;
-            toDisplay(var1)
-            break;
-        case "var2":
-            var2 *= -1;
-            toDisplay(var2)
-            break;
-        case "result":
-            result *= -1;
-            toDisplay(result)
+function toDisplay() {
+    // if focusedItem is present, display it. If not, display the last defined.
+    if (focusedItem) {
+        display.textContent = focusedItem;
     }
 }
-
 
 // --------------------------------------------------------
 // OPERATION FUNCTIONS
@@ -208,9 +145,23 @@ function multiply(val1, val2) {
 };
 
 function divide(val1, val2) {
-    return val1 / val2
+    if (val1 != 0 && val2 == 0) {
+        display.textContent = "Not today."
+    } else {
+        return val1 / val2;
+    };
 };
 
 // --------------------------------------------------------
+
+
+function test() {
+    console.log("digit click -------------------------")
+    console.log("focusedItem: " + focusedItem)
+    console.log("var1: " + var1);
+    console.log("var2: " + var2);
+    console.log("op: " + op);
+    console.log("afterEqual: " + afterEqual);
+}
 
 calculator()
