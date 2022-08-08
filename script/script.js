@@ -1,6 +1,7 @@
 // TO DO
-// multiple + digit return NaN, the same if multiple -
-// implement decimal function
+// multiple operator return NaN
+// multiple operation with op without new digit (on the focusedItem) doesn't work when changing operator
+// implement cancel function
 
 // --------------------------------------------------------
 // DOM VARIABLES
@@ -73,7 +74,7 @@ function operatorClick(e) {
     // concatenate operations
     if (var1 && op) {
         var2 = focusedItem;
-        var1 = operate(parseInt(var1), parseInt(var2), op);
+        var1 = operate(parseFloat(var1), parseFloat(var2), op);
         focusedItem = var1;
         op = e.target.getAttribute("data-value");
         var2 = "";
@@ -90,7 +91,7 @@ function operatorClick(e) {
 function equalSignClick() {
     if (!afterEqual) {
         var2 = focusedItem;
-        focusedItem = operate(parseInt(var1), parseInt(var2), op);
+        focusedItem = operate(parseFloat(var1), parseFloat(var2), op);
         op = "";
         var2 = "";
         afterEqual = true;
@@ -99,6 +100,7 @@ function equalSignClick() {
 
 function restartClick() {
     calculator()
+    console.clear()
 };
 
 function changeSignClick() {
@@ -106,11 +108,16 @@ function changeSignClick() {
 };
 
 function decimalDotClick() {
-    
-};
+    if (!focusedItem) {
+        focusedItem = 0;
+    };
+    if (!focusedItem.includes(".")) {
+        focusedItem += "."
+    }
+}
 
 function cancelClicked() {
-
+    focusedItem = focusedItem.toString().slice(0, -1)
 };
 
 // --------------------------------------------------------
@@ -148,7 +155,7 @@ function divide(val1, val2) {
     if (val1 != 0 && val2 == 0) {
         display.textContent = "Not today."
     } else {
-        return val1 / val2;
+        return (val1 / val2).toFixed(2);
     };
 };
 
@@ -156,10 +163,13 @@ function divide(val1, val2) {
 
 
 function test() {
-    console.log("digit click -------------------------")
+    console.log("-------------------------")
     console.log("focusedItem: " + focusedItem)
+    // console.log("type: " + typeof (focusedItem))
     console.log("var1: " + var1);
+    // console.log("type: " + typeof(var1))
     console.log("var2: " + var2);
+    // console.log("type: " + typeof (var2))
     console.log("op: " + op);
     console.log("afterEqual: " + afterEqual);
 }
