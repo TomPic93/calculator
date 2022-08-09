@@ -70,17 +70,17 @@ function digitClick(e) {
 };
 
 function operatorClick(e) {
-    // if an operation has already been executed (afterEqual == true) OR we change operator
-    // after the first variable (var1), only change che operator for the next operation
-    if (afterEqual) {
+    // condition for multiple op click with just 1 variable (just change the operator)
+    if (!focusedItem && !var2 && var1) {
         op = e.target.getAttribute("data-value");
-        var1 = focusedItem;
-        // if we're doing a new operation:
+
+    // if an operation hasn't been made yew (afterEqual == false), run the operation code
     } else if (!afterEqual) {
         // operator click with no initial value (display = 0)
         if (!focusedItem) {
             focusedItem = "0"
         };
+
         // concatenate operations
         if (var1 && op) {
             var2 = focusedItem;
@@ -89,14 +89,20 @@ function operatorClick(e) {
             op = e.target.getAttribute("data-value");
             var2 = "";
             afterEqual = true;
-            // first operation
+
+        // first operation
         } else {
             var1 = focusedItem;
             focusedItem = "";
             op = e.target.getAttribute("data-value");
             afterEqual = false;
         };
-    };
+
+    // if an operation has already been executed (afterEqual == true) only change che operator for the next operation
+    } else {
+        op = e.target.getAttribute("data-value");
+        var1 = focusedItem;
+    }
 };
 
 function equalSignClick() {
@@ -194,14 +200,12 @@ function divide(val1, val2) {
 // --------------------------------------------------------
 
 
-function test() {
+function test(e) {
     console.log("-------------------------")
+    console.log(e.target.textContent + " clicked")
     console.log("focusedItem: " + focusedItem)
-    // console.log("type: " + typeof (focusedItem))
     console.log("var1: " + var1);
-    // console.log("type: " + typeof(var1))
     console.log("var2: " + var2);
-    // console.log("type: " + typeof (var2))
     console.log("op: " + op);
     console.log("afterEqual: " + afterEqual);
 }
