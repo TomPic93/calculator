@@ -1,7 +1,5 @@
 // TO DO
-// multiple operator return NaN
-// multiple operation with op without new digit (on the focusedItem) doesn't work when changing operator
-// implement cancel function
+// delete with negative number remains - sign and following operations don't work
 
 // --------------------------------------------------------
 // DOM VARIABLES
@@ -51,7 +49,7 @@ function calculator() {
     equal.addEventListener('click', equalSignClick);
     // DISPLAY
     buttons.forEach((button) => button.addEventListener('click', toDisplay));
-
+    
 
     // TEST
     buttons.forEach((button) => {
@@ -63,6 +61,7 @@ function calculator() {
 // BUTTONS FUNCTIONS
 
 function digitClick(e) {
+    // after one operation if a new digit is clicked, that replaces the the result of previous operation
     if (afterEqual) {
         focusedItem = "";
         afterEqual = false;
@@ -71,25 +70,36 @@ function digitClick(e) {
 };
 
 function operatorClick(e) {
-    // concatenate operations
-    if (var1 && op) {
-        var2 = focusedItem;
-        var1 = operate(parseFloat(var1), parseFloat(var2), op);
-        focusedItem = var1;
+    // if an operation has already been executed (afterEqual == true) OR we change operator
+    // after the first variable (var1), only change che operator for the next operation
+    if (afterEqual || (!afterEqual && !focusedItem && !var2 && var1)) {
         op = e.target.getAttribute("data-value");
-        var2 = "";
-        afterEqual = true;
-    // first operation
-    } else {
-        var1 = focusedItem;
-        focusedItem = "";
-        op = e.target.getAttribute("data-value");
-        afterEqual = false;
-    }
+    // if we're doing a new operation:
+    } else if (!afterEqual) {
+        // operator click with no initial value (display = 0)
+        if (!focusedItem) {
+            focusedItem = "0"
+        };
+        // concatenate operations
+        if (var1 && op) {
+            var2 = focusedItem;
+            var1 = operate(parseFloat(var1), parseFloat(var2), op);
+            focusedItem = var1;
+            op = e.target.getAttribute("data-value");
+            var2 = "";
+            afterEqual = true;
+            // first operation
+        } else {
+            var1 = focusedItem;
+            focusedItem = "";
+            op = e.target.getAttribute("data-value");
+            afterEqual = false;
+        };
+    };
 };
 
 function equalSignClick() {
-    if (!afterEqual) {
+    if (!afterEqual && focusedItem) {
         var2 = focusedItem;
         focusedItem = operate(parseFloat(var1), parseFloat(var2), op);
         op = "";
@@ -104,20 +114,33 @@ function restartClick() {
 };
 
 function changeSignClick() {
-    focusedItem *= -1;
+    if (focusedItem) {
+        focusedItem *= -1; 
+    };
 };
 
 function decimalDotClick() {
-    if (!focusedItem) {
-        focusedItem = 0;
-    };
-    if (!focusedItem.includes(".")) {
-        focusedItem += "."
-    }
-}
+    if (!afterEqual) {
+        // if clicked without a value, set that to 0 (0.decimal)
+        if (!focusedItem) {
+            focusedItem = "0";
+        };
+        // add a dot only if there isn't already one
+        if (!focusedItem.toString().includes(".")) {
+            focusedItem += ".";
+        };  
+    }; 
+};
 
 function cancelClicked() {
-    focusedItem = focusedItem.toString().slice(0, -1)
+    // if the focusedItem holds a new digit (not a result of previous operation)
+    if (!afterEqual) {
+        focusedItem = focusedItem.toString().slice(0, -1)
+        // if empty displays 0
+        if (!focusedItem) {
+            display.textContent = "0"
+        };  
+    }; 
 };
 
 // --------------------------------------------------------
@@ -125,16 +148,24 @@ function cancelClicked() {
 
 // takes two input values and one operation function (below) and return the result
 function operate(input1, input2, operationToDo) {
-    return window[operationToDo](input1, input2);
+    let result = window[operationToDo](input1, input2);
+    // if the result is float, fixes it to two decimal points
+    if ((result - Math.floor(result)) !== 0) {
+        result = result.toFixed(2);
+    };
+    return result;
 };
 
 // display the argument in the calculator display
 function toDisplay() {
     // if focusedItem is present, display it. If not, display the last defined.
+    if (focusedItem == "-") {
+        display.textContent = "0"
+    }
     if (focusedItem) {
         display.textContent = focusedItem;
-    }
-}
+    };
+};
 
 // --------------------------------------------------------
 // OPERATION FUNCTIONS
@@ -155,7 +186,7 @@ function divide(val1, val2) {
     if (val1 != 0 && val2 == 0) {
         display.textContent = "Not today."
     } else {
-        return (val1 / val2).toFixed(2);
+        return val1 / val2;
     };
 };
 
