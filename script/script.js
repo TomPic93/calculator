@@ -32,7 +32,7 @@ function calculator() {
     focusedItem = "";
     afterEqual = false;
 
-    
+
     // CLEAR (A/C)
     clear.addEventListener("click", restartClick)
     // CANCEL (C)
@@ -49,7 +49,7 @@ function calculator() {
     equal.addEventListener('click', equalSignClick);
     // DISPLAY
     buttons.forEach((button) => button.addEventListener('click', toDisplay));
-    
+
 
     // TEST
     buttons.forEach((button) => {
@@ -72,9 +72,10 @@ function digitClick(e) {
 function operatorClick(e) {
     // if an operation has already been executed (afterEqual == true) OR we change operator
     // after the first variable (var1), only change che operator for the next operation
-    if (afterEqual || (!afterEqual && !focusedItem && !var2 && var1)) {
+    if (afterEqual) {
         op = e.target.getAttribute("data-value");
-    // if we're doing a new operation:
+        var1 = focusedItem;
+        // if we're doing a new operation:
     } else if (!afterEqual) {
         // operator click with no initial value (display = 0)
         if (!focusedItem) {
@@ -115,7 +116,7 @@ function restartClick() {
 
 function changeSignClick() {
     if (focusedItem) {
-        focusedItem *= -1; 
+        focusedItem *= -1;
     };
 };
 
@@ -128,8 +129,8 @@ function decimalDotClick() {
         // add a dot only if there isn't already one
         if (!focusedItem.toString().includes(".")) {
             focusedItem += ".";
-        };  
-    }; 
+        };
+    };
 };
 
 function cancelClicked() {
@@ -139,8 +140,8 @@ function cancelClicked() {
         // if empty displays 0
         if (!focusedItem) {
             display.textContent = "0"
-        };  
-    }; 
+        };
+    };
 };
 
 // --------------------------------------------------------
