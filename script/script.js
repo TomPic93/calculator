@@ -1,6 +1,3 @@
-// TO DO
-// delete with negative number remains - sign and following operations don't work
-
 // --------------------------------------------------------
 // DOM VARIABLES
 let changeSignBtn = document.querySelector("#changeSign");
@@ -132,17 +129,18 @@ function changeSignClick() {
 };
 
 function decimalDotClick() {
-    if (!afterEqual) {
+    // if (!afterEqual) {
         // if clicked without a value, set that to 0 (0.decimal)
         if (!focusedItem) {
             focusedItem = "0";
         };
         // add a dot only if there isn't already one
         if (!focusedItem.toString().includes(".")) {
+            afterEqual = false
             focusedItem += ".";
         };
     };
-};
+// };
 
 function cancelClicked() {
     // if the focusedItem holds a new digit (not a result of previous operation)
