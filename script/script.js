@@ -70,7 +70,12 @@ function digitClick(e) {
 };
 
 function operatorClick(e) {
-    // condition for multiple op click with just 1 variable (just change the operator)
+    // just the "-" sign left in focusedItem after cancel the other digits
+    if (focusedItem == "-") {
+        focusedItem = "0";
+    };
+
+    // multiple op clicks with just 1 variable just change the operator
     if (!focusedItem && !var2 && var1) {
         op = e.target.getAttribute("data-value");
 
@@ -102,7 +107,7 @@ function operatorClick(e) {
     } else {
         op = e.target.getAttribute("data-value");
         var1 = focusedItem;
-    }
+    };
 };
 
 function equalSignClick() {
