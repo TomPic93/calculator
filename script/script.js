@@ -1,9 +1,15 @@
 // TODO
-
-
+// Keyboard input
+// max number of digit inputs or expandible display
+// cannot digit 0 after an op sign (code in digit doesn't work correctly)
+// function for automatic date in footer
+// link in footer for social / github
+// reorganize stylesheet
 
 // --------------------------------------------------------
 // DOM VARIABLES
+// --------------------------------------------------------
+
 let changeSignBtn = document.querySelector("#changeSign");
 let cancel = document.querySelector("#cancel");
 let clear = document.querySelector("#clear");
@@ -12,11 +18,13 @@ let displayBottom = document.querySelector("#displayBottom");
 let buttons = document.querySelectorAll(".button"); // all buttons
 let digits = document.querySelectorAll(".digit") // 0-9
 let operators = document.querySelectorAll(".operator");
-let equal = document.querySelector(".equal");
-let dot = document.querySelector(".dot");
+let equal = document.querySelector("#equal");
+let dot = document.querySelector("#dot");
 
 // --------------------------------------------------------
 // GLOBAL VARIABLES
+// --------------------------------------------------------
+
 let var1;  // holds the operation's first variable (number)
 let var2;  // holds the operation's second variable (number)
 let op; // holds the operation to be performed on the variables
@@ -26,6 +34,7 @@ let afterOperation;  // boolean: determine if a precedent operation has been mad
 
 // --------------------------------------------------------
 // MAIN FUNCTION
+// --------------------------------------------------------
 
 function calculator() {
     displayBottom.textContent = "0"
@@ -61,6 +70,7 @@ function calculator() {
 
 // --------------------------------------------------------
 // BUTTONS FUNCTIONS
+// --------------------------------------------------------
 
 function digitClick(e) {
     // after one operation if a new digit is clicked, that replaces the the result of previous operation
@@ -71,8 +81,8 @@ function digitClick(e) {
     // focusedItem cannot starts with 0
     if (!focusedItem && e.target.getAttribute("data-value") == 0) {
         focusedItem = ""
-    } else focusedItem += e.target.getAttribute("data-value");
-    
+    // adds the digits to focusedItem
+    } else focusedItem += e.target.getAttribute("data-value"); 
 };
 
 function operatorClick(e) {
@@ -154,6 +164,7 @@ function cancelClicked() {
 
 // --------------------------------------------------------
 // DISPLAY FUNCTIONS
+// --------------------------------------------------------
 
 // display the current value in the bottom display
 function toDisplayBottom() {
@@ -170,6 +181,7 @@ function toDisplayTop(...items) {
 
 // --------------------------------------------------------
 // OPERATION FUNCTIONS
+// --------------------------------------------------------
 
 // takes two input values and one operation function (below) and return the result
 function operate(input1, input2, operationToDo) {
@@ -203,7 +215,7 @@ function divide(val1, val2) {
 };
 
 // --------------------------------------------------------
-
+// --------------------------------------------------------
 
 function test(e) {
     console.log("-------------------------")
@@ -213,6 +225,6 @@ function test(e) {
     console.log("var2: " + var2);
     console.log("op: " + op);
     console.log("afterOperation: " + afterOperation);
-}
+};
 
 calculator()
