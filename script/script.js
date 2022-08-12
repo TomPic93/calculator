@@ -1,5 +1,5 @@
 // TODO
-// change the operator sign from text to symbol in displayTop
+
 
 
 // --------------------------------------------------------
@@ -20,6 +20,7 @@ let dot = document.querySelector(".dot");
 let var1;  // holds the operation's first variable (number)
 let var2;  // holds the operation's second variable (number)
 let op; // holds the operation to be performed on the variables
+let opSign; // holds the operation sign
 let focusedItem;  // holds the item we're working on (var1, var2 or result)
 let afterOperation;  // boolean: determine if a precedent operation has been made
 
@@ -66,15 +67,21 @@ function digitClick(e) {
     if (afterOperation) {
         focusedItem = "";
         afterOperation = false;
-    } 
-    focusedItem += e.target.getAttribute("data-value");
+    };
+    // focusedItem cannot starts with 0
+    if (!focusedItem && e.target.getAttribute("data-value") == 0) {
+        focusedItem = ""
+    } else focusedItem += e.target.getAttribute("data-value");
+    
 };
 
 function operatorClick(e) {
+    // assigns the current operation sign
+    opSign = e.target.textContent
     // if after multiple "C" the "-" sign is the only left in focusedItem, set this to 0
     if (focusedItem == "-") focusedItem = "0";
     // multiple op clicks with just 1 variable just change the operator
-    if (!focusedItem && !var2 && var1) op = e.target.getAttribute("data-value");
+    if (!focusedItem && !var2 && var1) op = e.target.getAttribute("data-value")
     // if it's the first operation (afterOperation == false), run the operation code
     else if (!afterOperation) {
         // if an operator is clicked with no digit value set this to 0
@@ -99,8 +106,8 @@ function operatorClick(e) {
         op = e.target.getAttribute("data-value");
         var1 = focusedItem;
     };
-    // display on topDisplay
-    toDisplayTop(var1, op)
+    // display on topDisplay (first var and operation sign)
+    toDisplayTop(var1, opSign)
 };
 
 function equalSignClick() {
@@ -119,10 +126,13 @@ function restartClick() {
 };
 
 function changeSignClick() {
-    if (focusedItem) focusedItem *= -1;
+    if (!afterOperation) {
+        if (focusedItem) focusedItem *= -1;
+    };
 };
 
 function decimalDotClick() {
+    if (!afterOperation) {
         // if clicked without a value, set that to 0 (0.decimal)
         if (!focusedItem) focusedItem = "0";
         // add a dot only if there isn't already one
@@ -131,6 +141,7 @@ function decimalDotClick() {
             focusedItem += ".";
         };
     };
+ };
 
 function cancelClicked() {
     // if the focusedItem holds a new digit (not a result of previous operation)
@@ -154,6 +165,7 @@ function toDisplayBottom() {
 function toDisplayTop(...items) {
     displayTop.textContent = "";
     items.forEach(item => displayTop.textContent += `${item} `);
+    console.log(items)
 };
 
 // --------------------------------------------------------
@@ -165,7 +177,7 @@ function operate(input1, input2, operationToDo) {
     // if the result is float, fixes it to two decimal points
     if ((result - Math.floor(result)) !== 0) result = result.toFixed(2);
     // displays on topDisplay
-    toDisplayTop(input1, operationToDo, input2, " =")
+    toDisplayTop(input1, opSign, input2, " =")
     return result;
 };
 
@@ -182,8 +194,9 @@ function multiply(val1, val2) {
 };
 
 function divide(val1, val2) {
-    if (val1 != 0 && val2 == 0) {
-        displayBottom.textContent = "Not today."
+    if (val1 != 0 && val2 == 0 || val1 == 0 && val2 == 0) {
+        displayBottom.textContent = "Sir, you shouldn't do that"
+        return 0;
     } else {
         return val1 / val2;
     };
