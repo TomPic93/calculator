@@ -1,15 +1,16 @@
 // TODO
 // Keyboard input
-// max number of digit inputs or expandible display
 // cannot digit 0 after an op sign (code in digit doesn't work correctly)
 // function for automatic date in footer
 // link in footer for social / github
-// reorganize stylesheet
+// separation point for thousands 
+// mouse pointer to hand when on calculator
 
 // --------------------------------------------------------
 // DOM VARIABLES
 // --------------------------------------------------------
 
+const audio = new Audio("./media/button-press-sound.mp3")
 let changeSignBtn = document.querySelector("#changeSign");
 let cancel = document.querySelector("#cancel");
 let clear = document.querySelector("#clear");
@@ -61,6 +62,8 @@ function calculator() {
     equal.addEventListener('click', equalSignClick);
     // DISPLAY
     buttons.forEach((button) => button.addEventListener('click', toDisplayBottom)); // bottom display (current value)
+    // SOUND
+    buttons.forEach((button) => button.addEventListener('click', buttonSound));
 
     // TEST
     buttons.forEach((button) => {
@@ -78,6 +81,7 @@ function digitClick(e) {
         focusedItem = "";
         afterOperation = false;
     };
+    // PROBLEM HERE
     // focusedItem cannot starts with 0
     if (!focusedItem && e.target.getAttribute("data-value") == 0) {
         focusedItem = ""
@@ -136,9 +140,9 @@ function restartClick() {
 };
 
 function changeSignClick() {
-    if (!afterOperation) {
+    // if (!afterOperation) {
         if (focusedItem) focusedItem *= -1;
-    };
+    // };
 };
 
 function decimalDotClick() {
@@ -215,7 +219,13 @@ function divide(val1, val2) {
 };
 
 // --------------------------------------------------------
+// OTHER FUNCTIONS
 // --------------------------------------------------------
+
+function buttonSound() {
+    audio.load();
+    audio.play();
+};
 
 function test(e) {
     console.log("-------------------------")
@@ -226,5 +236,10 @@ function test(e) {
     console.log("op: " + op);
     console.log("afterOperation: " + afterOperation);
 };
+
+// --------------------------------------------------------
+
+
+
 
 calculator()

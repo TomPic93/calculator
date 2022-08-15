@@ -3,67 +3,97 @@
 /* ----------------------------------------- */
 
 * {
+    color: white;
     font-family: "Helvetica";
     font-size: 24px;
-    color: white;
 }
 
 html {
     background-color: #c0c0c0;
 }
 
-
 .display, .button {
     border-radius: 8px;
 }
-
 
 /* ----------------------------------------- */
 /* CALCULATOR */
 /* ----------------------------------------- */
 
 #container {
-    border-radius: 16px;
-    box-shadow: 10px 10px 5px gray;
-    margin: auto;
-    width: 300px;
-    margin: 120px auto;
-    padding: 10px;
     background-color: #5b5b5b;
     border: 2px solid black;
+    border-radius: 16px;
+    box-shadow: 10px 10px 5px gray;
+    margin: 120px auto;
+    padding: 10px;
+    width: 300px;
 }
 
 /* ----------------------------------------- */
 /* DISPLAY */
 /* ----------------------------------------- */
 
-/* contains the top and bottom displays */
 .display {
+    background-color: #7b7b7b;
+    border: 1px solid black;
+    box-shadow: 1px 1px 1px rgb(53, 53, 53); 
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    justify-content: center;
-    border: 1px solid black;
     margin-bottom: 10px;
-    height: 80px;
     padding: 10px;
-    background-color: #7b7b7b;
-    box-shadow: 1px 1px 1px rgb(53, 53, 53);
+    text-align: right;
+    word-wrap: break-word;
+    word-break: break-all;
+    
 }
 
 #displayTop {
-    height: 40px;
     font-size: 18px;
+    min-height: 40px;
 }
 
 #displayBottom {
-    height: 40px;
     font-size: 46px;
+    min-height: 40px;
 }
 
 /* ----------------------------------------- */
 /* BUTTONS */
 /* ----------------------------------------- */
+
+#buttons {
+    display: grid;
+    gap: 0.1rem;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-col-span-2 {
+    grid-column: span 2;
+}
+
+.button {
+    align-items: center;
+    border: 1px solid black;
+    box-shadow: 1px 1px 1px rgb(33, 33, 33);
+    display: flex;
+    height: 60px;
+    justify-content: center;
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+.button:active {
+    box-shadow: 1px 1px 1px rgb(33, 33, 33);
+    opacity: 0.6;
+    transform: translateY(0.8px);
+}
+
+.operator, #dot, #equal, #changeSign{
+    background-color: #ffb833;
+}
 
 #clear {
     background-color: #ff4d4d;
@@ -78,35 +108,9 @@ html {
     font-size: 30px;
 }
 
-.operator, #dot, #equal, #changeSign{
-    background-color: #ffb833;
-}
-
-#buttons {
-    display: grid;
-    gap: 0.1rem;
-    grid-template-columns: repeat(4, 1fr);
-    
-
-}
-
-.button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid black;
-    height: 60px;
-    box-shadow: 1px 1px 1px rgb(33, 33, 33);
-}
-
-.grid-col-span-2 {
-    grid-column: span 2;
-}
-
-.button>p {
-    text-align: center;
-}
-
+/* ----------------------------------------- */
+/* FOOTER */
+/* ----------------------------------------- */
 
 footer {
     font-size: 18px;
