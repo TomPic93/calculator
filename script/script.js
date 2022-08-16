@@ -1,16 +1,18 @@
 // TODO
 // Keyboard input
-// cannot digit 0 after an op sign (code in digit doesn't work correctly)
-// function for automatic date in footer
 // link in footer for social / github
 // separation point for thousands 
-// mouse pointer to hand when on calculator
+
+// PROBLEMS
 
 // --------------------------------------------------------
 // DOM VARIABLES
 // --------------------------------------------------------
 
-const audio = new Audio("./media/button-press-sound.mp3")
+const d = new Date();
+let year = d.getFullYear();
+let currentYear = document.querySelector("#currentYear");
+const audio = new Audio("./media/button-press-sound.mp3");
 let changeSignBtn = document.querySelector("#changeSign");
 let cancel = document.querySelector("#cancel");
 let clear = document.querySelector("#clear");
@@ -29,22 +31,24 @@ let dot = document.querySelector("#dot");
 let var1;  // holds the operation's first variable (number)
 let var2;  // holds the operation's second variable (number)
 let op; // holds the operation to be performed on the variables
-let opSign; // holds the operation sign
+let opSign; // holds the operation sign (ONLY FOR DISPLAY)
 let focusedItem;  // holds the item we're working on (var1, var2 or result)
 let afterOperation;  // boolean: determine if a precedent operation has been made
+let lastInput; // holds the last input type (digit, operator, etc)
 
 // --------------------------------------------------------
 // MAIN FUNCTION
 // --------------------------------------------------------
 
 function calculator() {
-    displayBottom.textContent = "0"
+    displayBottom.textContent = ""
     displayTop.textContent = ""
     var1 = "";
     var2 = "";
     op = "";
     focusedItem = "";
     afterOperation = false;
+    lastInput = "";
 
     // CLEAR (A/C)
     clear.addEventListener("click", restartClick)
@@ -81,25 +85,32 @@ function digitClick(e) {
         focusedItem = "";
         afterOperation = false;
     };
-    // PROBLEM HERE
-    // focusedItem cannot starts with 0
-    if (!focusedItem && e.target.getAttribute("data-value") == 0) {
-        focusedItem = ""
-    // adds the digits to focusedItem
-    } else focusedItem += e.target.getAttribute("data-value"); 
+    // user can't click multiple 0
+    if (focusedItem == 0 && e.target.getAttribute("data-value") == 0) {
+        focusedItem = 0
+    // if user clicks 0 and then another number, deletes the first 0 (except for a decimal value)
+    } else if (focusedItem == 0 && e.target.getAttribute("data-value") != 0 && lastInput != "decimalDot"){
+        focusedItem = "";
+        focusedItem += e.target.getAttribute("data-value");
+    // just add the digit to focusedItem
+    } else {
+        focusedItem += e.target.getAttribute("data-value");
+    };
+    lastInput = "digit";
 };
 
 function operatorClick(e) {
-    // assigns the current operation sign
+    // assigns the current operation sign (ONLY FOR DISPLAY REASON)
     opSign = e.target.textContent
     // if after multiple "C" the "-" sign is the only left in focusedItem, set this to 0
     if (focusedItem == "-") focusedItem = "0";
     // multiple op clicks with just 1 variable just change the operator
-    if (!focusedItem && !var2 && var1) op = e.target.getAttribute("data-value")
+    // ERROR HERE
+    if (lastInput == "operator") op = e.target.getAttribute("data-value")
     // if it's the first operation (afterOperation == false), run the operation code
-    else if (!afterOperation) {
+    else if (afterOperation == false) {
         // if an operator is clicked with no digit value set this to 0
-        if (!focusedItem) focusedItem = "0";
+        if (focusedItem == false) focusedItem = "0";
         // concatenate operations
         if (var1 && op) {
             var2 = focusedItem;
@@ -108,30 +119,32 @@ function operatorClick(e) {
             op = e.target.getAttribute("data-value");
             var2 = "";
             afterOperation = true;
-        // first operation
+            // first operation
         } else {
             var1 = focusedItem;
             focusedItem = "";
             op = e.target.getAttribute("data-value");
             afterOperation = false;
         };
-    // if an operation has already been executed (afterOperation == true) only change che operator for the next operation
+        // if an operation has already been executed (afterOperation == true) only change che operator for the next operation
     } else {
         op = e.target.getAttribute("data-value");
         var1 = focusedItem;
     };
+    lastInput = "operator"
     // display on topDisplay (first var and operation sign)
     toDisplayTop(var1, opSign)
 };
 
 function equalSignClick() {
-    if (!afterOperation && focusedItem) {
+    if (!afterOperation) {
         var2 = focusedItem;
         focusedItem = operate(parseFloat(var1), parseFloat(var2), op);
         op = "";
         var2 = "";
-        afterOperation = true;  
+        afterOperation = true;
     };
+    lastInput = "equal";
 };
 
 function restartClick() {
@@ -141,7 +154,7 @@ function restartClick() {
 
 function changeSignClick() {
     // if (!afterOperation) {
-        if (focusedItem) focusedItem *= -1;
+    if (focusedItem) focusedItem *= -1;
     // };
 };
 
@@ -155,7 +168,8 @@ function decimalDotClick() {
             focusedItem += ".";
         };
     };
- };
+    lastInput = "decimalDot"
+};
 
 function cancelClicked() {
     // if the focusedItem holds a new digit (not a result of previous operation)
@@ -172,8 +186,7 @@ function cancelClicked() {
 
 // display the current value in the bottom display
 function toDisplayBottom() {
-    // if focusedItem is present, display it. If not, display the last defined.
-    if (focusedItem) displayBottom.textContent = focusedItem;
+    displayBottom.textContent = focusedItem;
 };
 
 // display the full operation in the top display
@@ -210,9 +223,10 @@ function multiply(val1, val2) {
 };
 
 function divide(val1, val2) {
+    // if user tries to divide by 0
     if (val1 != 0 && val2 == 0 || val1 == 0 && val2 == 0) {
-        displayBottom.textContent = "Sir, you shouldn't do that"
-        return 0;
+        alert("Sir, you shouldn't do that. Shame on you.")
+        restartClick()
     } else {
         return val1 / val2;
     };
@@ -240,6 +254,6 @@ function test(e) {
 // --------------------------------------------------------
 
 
-
+currentYear.textContent = year;
 
 calculator()
