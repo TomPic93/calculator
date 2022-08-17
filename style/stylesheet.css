@@ -128,7 +128,19 @@ html {
 /* FOOTER */
 /* ----------------------------------------- */
 
+.footer {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    margin: auto;
+    width: fit-content;
+}
+
 footer, #currentYear{
     font-size: 18px;
     text-align: center;
+}
+
+#gitHubImg {
+    height: 20px;
 }

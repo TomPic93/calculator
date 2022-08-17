@@ -1,10 +1,3 @@
-// TODO
-// Keyboard input
-// link in footer for social / github
-// separation point for thousands 
-
-// PROBLEMS
-
 // --------------------------------------------------------
 // DOM VARIABLES
 // --------------------------------------------------------
@@ -33,7 +26,7 @@ let var2;  // holds the operation's second variable (number)
 let op; // holds the operation to be performed on the variables
 let opSign; // holds the operation sign (ONLY FOR DISPLAY)
 let focusedItem;  // holds the item we're working on (var1, var2 or result)
-let afterOperation;  // boolean: determine if a precedent operation has been made
+let newOperation;  // boolean: determine if a precedent operation has been made
 let lastInput; // holds the last input type (digit, operator, etc)
 
 // --------------------------------------------------------
@@ -47,7 +40,7 @@ function calculator() {
     var2 = "";
     op = "";
     focusedItem = "";
-    afterOperation = false;
+    newOperation = false;
     lastInput = "";
 
     // CLEAR (A/C)
@@ -68,11 +61,6 @@ function calculator() {
     buttons.forEach((button) => button.addEventListener('click', toDisplayBottom)); // bottom display (current value)
     // SOUND
     buttons.forEach((button) => button.addEventListener('click', buttonSound));
-
-    // TEST
-    buttons.forEach((button) => {
-        button.addEventListener('click', test);
-    })
 };
 
 // --------------------------------------------------------
@@ -80,71 +68,79 @@ function calculator() {
 // --------------------------------------------------------
 
 function digitClick(e) {
-    // after one operation if a new digit is clicked, that replaces the the result of previous operation
-    if (afterOperation) {
-        focusedItem = "";
-        afterOperation = false;
+    let digit = e.target.getAttribute("data-value");
+
+    // after one operation if a new digit is clicked, replaces the result of previous operation with that
+    if (newOperation) {
+        focusedItem = ""
+        newOperation = false
     };
-    // user can't click multiple 0
-    if (focusedItem == 0 && e.target.getAttribute("data-value") == 0) {
+
+    // user can't click multiple initial 0
+    if (focusedItem == 0 && digit == 0) {
         focusedItem = 0
     // if user clicks 0 and then another number, deletes the first 0 (except for a decimal value)
-    } else if (focusedItem == 0 && e.target.getAttribute("data-value") != 0 && lastInput != "decimalDot"){
-        focusedItem = "";
-        focusedItem += e.target.getAttribute("data-value");
-    // just add the digit to focusedItem
+    } else if (focusedItem == 0 && digit != 0 && lastInput != "decimalDot") {
+        focusedItem = ""
+        focusedItem += digit
+    // just adds the digit to focusedItem
     } else {
-        focusedItem += e.target.getAttribute("data-value");
+        focusedItem += digit
     };
-    lastInput = "digit";
+    lastInput = "digit"
 };
 
 function operatorClick(e) {
-    // assigns the current operation sign (ONLY FOR DISPLAY REASON)
-    opSign = e.target.textContent
-    // if after multiple "C" the "-" sign is the only left in focusedItem, set this to 0
+    let operator = e.target.getAttribute("data-value");
+
+    // if after multiple "C" the "-" sign is the only left in focusedItem, sets this to 0
     if (focusedItem == "-") focusedItem = "0";
-    // multiple op clicks with just 1 variable just change the operator
-    // ERROR HERE
-    if (lastInput == "operator") op = e.target.getAttribute("data-value")
-    // if it's the first operation (afterOperation == false), run the operation code
-    else if (afterOperation == false) {
-        // if an operator is clicked with no digit value set this to 0
-        if (focusedItem == false) focusedItem = "0";
-        // concatenate operations
-        if (var1 && op) {
-            var2 = focusedItem;
-            var1 = operate(parseFloat(var1), parseFloat(var2), op);
-            focusedItem = var1;
-            op = e.target.getAttribute("data-value");
-            var2 = "";
-            afterOperation = true;
-            // first operation
-        } else {
-            var1 = focusedItem;
-            focusedItem = "";
-            op = e.target.getAttribute("data-value");
-            afterOperation = false;
+
+    // multiple operator sign clicks with just 1 variable set just change the operator and exits the function
+    if (lastInput == "operator") {
+        op = operator
+
+    // OPERATION CYCLE
+    } else if (newOperation == false) {
+        // if an operator sign is clicked with no digit value sets this to 0
+        if (focusedItem == false) focusedItem = "0"
+        
+        if (var1 && op) { // CONCATENATE OPERATIONS (x + y +)
+            var2 = focusedItem
+            var1 = operate(parseFloat(var1), parseFloat(var2), op)
+            focusedItem = var1
+            op = operator
+            var2 = ""
+            newOperation = true  // enables a new input in focusedItem (digitClicked)
+        } else { // NEW OPERATION (x +)
+            var1 = focusedItem
+            focusedItem = ""
+            op = operator
+            newOperation = false
         };
-        // if an operation has already been executed (afterOperation == true) only change che operator for the next operation
+    // NEW OPERATION WITH PREVIOUS RESULT (x + y = z +)
     } else {
-        op = e.target.getAttribute("data-value");
-        var1 = focusedItem;
+        op = operator
+        var1 = focusedItem
     };
-    lastInput = "operator"
-    // display on topDisplay (first var and operation sign)
-    toDisplayTop(var1, opSign)
+
+
+    lastInput = "operator";
+    // assigns the current operation sign (ONLY FOR DISPLAY REASON)
+    opSign = e.target.textContent;
+    // displays on topDisplay (first var and operation sign)
+    toDisplayTop(var1, opSign);
 };
 
 function equalSignClick() {
-    if (!afterOperation) {
-        var2 = focusedItem;
-        focusedItem = operate(parseFloat(var1), parseFloat(var2), op);
-        op = "";
-        var2 = "";
-        afterOperation = true;
+    if (newOperation == false) {
+        var2 = focusedItem
+        focusedItem = operate(parseFloat(var1), parseFloat(var2), op)
+        op = ""
+        var2 = ""
+        newOperation = true  // enables a new digit input (digitClicked)
     };
-    lastInput = "equal";
+    lastInput = "equal"
 };
 
 function restartClick() {
@@ -153,29 +149,27 @@ function restartClick() {
 };
 
 function changeSignClick() {
-    // if (!afterOperation) {
     if (focusedItem) focusedItem *= -1;
-    // };
 };
 
 function decimalDotClick() {
-    if (!afterOperation) {
+    if (!newOperation) {
         // if clicked without a value, set that to 0 (0.decimal)
         if (!focusedItem) focusedItem = "0";
         // add a dot only if there isn't already one
-        if (!focusedItem.toString().includes(".")) {
-            afterOperation = false;
-            focusedItem += ".";
+        if (focusedItem.toString().includes(".") == false) {
+            newOperation = false
+            focusedItem += "."
         };
     };
     lastInput = "decimalDot"
 };
 
 function cancelClicked() {
-    // if the focusedItem holds a new digit (not a result of previous operation)
-    if (!afterOperation) {
+    // works only for new digits
+    if (!newOperation) {
         focusedItem = focusedItem.toString().slice(0, -1)
-        // if empty displays 0
+        // if all digits are deleted, displays 0
         if (!focusedItem) displayBottom.textContent = "0"
     };
 };
@@ -184,16 +178,15 @@ function cancelClicked() {
 // DISPLAY FUNCTIONS
 // --------------------------------------------------------
 
-// display the current value in the bottom display
+// displays the current value in the bottom display
 function toDisplayBottom() {
     displayBottom.textContent = focusedItem;
 };
 
-// display the full operation in the top display
+// displays the full operation in the top display
 function toDisplayTop(...items) {
-    displayTop.textContent = "";
+    displayTop.textContent = ""
     items.forEach(item => displayTop.textContent += `${item} `);
-    console.log(items)
 };
 
 // --------------------------------------------------------
@@ -203,6 +196,7 @@ function toDisplayTop(...items) {
 // takes two input values and one operation function (below) and return the result
 function operate(input1, input2, operationToDo) {
     let result = window[operationToDo](input1, input2);
+
     // if the result is float, fixes it to two decimal points
     if ((result - Math.floor(result)) !== 0) result = result.toFixed(2);
     // displays on topDisplay
@@ -211,15 +205,15 @@ function operate(input1, input2, operationToDo) {
 };
 
 function add(val1, val2) {
-    return val1 + val2;
+    return val1 + val2
 };
 
 function subtract(val1, val2) {
-    return val1 - val2;
+    return val1 - val2
 };
 
 function multiply(val1, val2) {
-    return val1 * val2;
+    return val1 * val2
 };
 
 function divide(val1, val2) {
@@ -241,18 +235,7 @@ function buttonSound() {
     audio.play();
 };
 
-function test(e) {
-    console.log("-------------------------")
-    console.log(e.target.textContent + " clicked")
-    console.log("focusedItem: " + focusedItem)
-    console.log("var1: " + var1);
-    console.log("var2: " + var2);
-    console.log("op: " + op);
-    console.log("afterOperation: " + afterOperation);
-};
-
 // --------------------------------------------------------
-
 
 currentYear.textContent = year;
 
