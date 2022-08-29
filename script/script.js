@@ -2,29 +2,23 @@
 // DOM VARIABLES
 // --------------------------------------------------------
 
-const d = new Date();
-let year = d.getFullYear();
-let currentYear = document.querySelector("#currentYear");
+const currentYear = document.querySelector("#currentYear");
 const audio = new Audio("./media/button-press-sound.mp3");
-let changeSignBtn = document.querySelector("#changeSign");
-let cancel = document.querySelector("#cancel");
-let clear = document.querySelector("#clear");
-let displayTop = document.querySelector("#displayTop");
-let displayBottom = document.querySelector("#displayBottom");
-let buttons = document.querySelectorAll(".button"); // all buttons
-let digits = document.querySelectorAll(".digit") // 0-9
-let operators = document.querySelectorAll(".operator");
-let equal = document.querySelector("#equal");
-let dot = document.querySelector("#dot");
+const displayTop = document.querySelector("#displayTop");
+const displayBottom = document.querySelector("#displayBottom");
+const buttons = document.querySelectorAll(".button");
 
 // --------------------------------------------------------
 // GLOBAL VARIABLES
 // --------------------------------------------------------
 
+// copyright year changes automatically
+const d = new Date();
+currentYear.textContent = d.getFullYear();
+
 let var1;  // holds the operation's first variable (number)
 let var2;  // holds the operation's second variable (number)
-let op; // holds the operation to be performed on the variables
-let opSign; // holds the operation sign (ONLY FOR DISPLAY)
+let operator;  // + - * /
 let focusedItem;  // holds the item we're working on (var1, var2 or result)
 let newOperation;  // boolean: determine if a precedent operation has been made
 let lastInput; // holds the last input type (digit, operator, etc)
@@ -38,118 +32,120 @@ function calculator() {
     displayTop.textContent = ""
     var1 = "";
     var2 = "";
-    op = "";
+    operator = "";
     focusedItem = "";
     newOperation = false;
     lastInput = "";
 
-    // CLEAR (A/C)
-    clear.addEventListener("click", restartClick)
-    // CANCEL (C)
-    cancel.addEventListener("click", cancelClicked)
-    // CHANGE SIGN (+/-)
-    changeSignBtn.addEventListener("click", changeSignClick);
-    // DIGITS (0-9)
-    digits.forEach(digit => digit.addEventListener("click", digitClick));
-    // OPERATORS (+,-,*,/)
-    operators.forEach(operator => operator.addEventListener('click', operatorClick));
-    // DECIMAL DOT (.)
-    dot.addEventListener("click", decimalDotClick);
-    // EQUAL SIGN (=)
-    equal.addEventListener('click', equalSignClick);
-    // DISPLAY
-    buttons.forEach((button) => button.addEventListener('click', toDisplayBottom)); // bottom display (current value)
-    // SOUND
-    buttons.forEach((button) => button.addEventListener('click', buttonSound));
+    // INPUT OPTIONS: click on screen or keyboard press
+    buttons.forEach((button) => button.addEventListener('click', inputListener));
+    document.addEventListener("keydown", inputListener)
+};
+
+// --------------------------------------------------------
+// USER'S INPUT HANDLER
+// --------------------------------------------------------
+
+function inputListener(e) {
+    let input;
+    // different value origin for click and keydown events
+    if (e.type == "click") input = e.target.getAttribute("data-value")
+    if (e.type == "keydown") input = e.key
+
+    if (input >= 0 && input <= 9 && input != null) digitClick(input)
+    if (input == "+" || input == "-" || input == "*" || input == "/") operatorClick(input)
+    if (input == "=" || input == "Enter") equalSignClick()
+    if (input == "+/-") changeSignClick()
+    if (input == ".") decimalDotClick()
+    if (input == "c" || input == "Backspace" || input == "Delete") cancelClick()
+    if (input == "a/c" || input == "Escape" || input == "Clear") restartClick()
+    
+    toDisplayBottom();
 };
 
 // --------------------------------------------------------
 // BUTTONS FUNCTIONS
 // --------------------------------------------------------
 
-function digitClick(e) {
-    let digit = e.target.getAttribute("data-value");
+function digitClick(digitInput) {
 
-    // after one operation if a new digit is clicked, replaces the result of previous operation with that
+    // after one complete operation, if a new digit is clicked, replaces the result of previous operation with that
     if (newOperation) {
         focusedItem = ""
         newOperation = false
     };
 
     // user can't click multiple initial 0
-    if (focusedItem == 0 && digit == 0) {
+    if (focusedItem == 0 && digitInput == 0) {
         focusedItem = 0
-    // if user clicks 0 and then another number, deletes the first 0 (except for a decimal value)
-    } else if (focusedItem == 0 && digit != 0 && lastInput != "decimalDot") {
+    // if user clicks 0 and then another digit, deletes the first 0 (except for a decimal value)
+    } else if (focusedItem == 0 && digitInput != 0 && lastInput != "decimalDot") {
         focusedItem = ""
-        focusedItem += digit
-    // just adds the digit to focusedItem
+        focusedItem += digitInput
     } else {
-        focusedItem += digit
+        // "normal case": just adds the digit to focusedItem
+        focusedItem += digitInput
     };
+    
     lastInput = "digit"
+    buttonSound()
 };
 
-function operatorClick(e) {
-    let operator = e.target.getAttribute("data-value");
+function operatorClick(operatorInput) {
 
     // if after multiple "C" the "-" sign is the only left in focusedItem, sets this to 0
     if (focusedItem == "-") focusedItem = "0";
 
-    // multiple operator sign clicks with just 1 variable set just change the operator and exits the function
+    // multiple operator sign clicks with just 1 variable set just change the operator
     if (lastInput == "operator") {
-        op = operator
+        operator = operatorInput
 
-    // OPERATION CYCLE
+        // OPERATION CYCLE
     } else if (newOperation == false) {
         // if an operator sign is clicked with no digit value sets this to 0
         if (focusedItem == false) focusedItem = "0"
-        
-        if (var1 && op) { // CONCATENATE OPERATIONS (x + y +)
+
+        if (var1 && operator) { // CONCATENATE OPERATIONS (x + y +)
             var2 = focusedItem
-            var1 = operate(parseFloat(var1), parseFloat(var2), op)
+            var1 = operate(parseFloat(var1), parseFloat(var2), operator)
             focusedItem = var1
-            op = operator
+            operator = operatorInput
             var2 = ""
-            newOperation = true  // enables a new input in focusedItem (digitClicked)
+            newOperation = true  // enables a new input in focusedItem (digitClick)
         } else { // NEW OPERATION (x +)
             var1 = focusedItem
             focusedItem = ""
-            op = operator
+            operator = operatorInput
             newOperation = false
         };
-    // NEW OPERATION WITH PREVIOUS RESULT (x + y = z +)
+        // NEW OPERATION WITH PREVIOUS RESULT (x + y = z +)
     } else {
-        op = operator
+        operator = operatorInput
         var1 = focusedItem
     };
 
-
     lastInput = "operator";
-    // assigns the current operation sign (ONLY FOR DISPLAY REASON)
-    opSign = e.target.textContent;
+
     // displays on topDisplay (first var and operation sign)
-    toDisplayTop(var1, opSign);
+    toDisplayTop(var1, operatorInput);
+    buttonSound()
 };
 
 function equalSignClick() {
-    if (newOperation == false) {
+    if (newOperation == false && (var2 || var2 == 0)) {
         var2 = focusedItem
-        focusedItem = operate(parseFloat(var1), parseFloat(var2), op)
-        op = ""
+        focusedItem = operate(parseFloat(var1), parseFloat(var2), operator)
+        operator = ""
         var2 = ""
         newOperation = true  // enables a new digit input (digitClicked)
     };
     lastInput = "equal"
-};
-
-function restartClick() {
-    calculator()
-    console.clear()
+    buttonSound()
 };
 
 function changeSignClick() {
     if (focusedItem) focusedItem *= -1;
+    buttonSound()
 };
 
 function decimalDotClick() {
@@ -163,19 +159,52 @@ function decimalDotClick() {
         };
     };
     lastInput = "decimalDot"
+    buttonSound()
 };
 
-function cancelClicked() {
+function cancelClick() {
     // works only for new digits
     if (!newOperation) {
         focusedItem = focusedItem.toString().slice(0, -1)
         // if all digits are deleted, displays 0
         if (!focusedItem) displayBottom.textContent = "0"
-    };
+    }
+    buttonSound()
+};
+
+function restartClick() {
+    calculator()
+    console.clear()
+    buttonSound()
 };
 
 // --------------------------------------------------------
-// DISPLAY FUNCTIONS
+// OPERATION FUNCTION
+// --------------------------------------------------------
+
+// takes two values and one symbol and return the result
+function operate(input1, input2, symbol) {
+    let result;
+
+    if (symbol == "+") result = input1 + input2
+    if (symbol == "-") result = input1 - input2
+    if (symbol == "*") result = input1 * input2
+    if (symbol == "/") {
+        if (input1 != 0 && input2 == 0 || input1 == 0 && input2 == 0) {
+            alert("Sir, you shouldn't do that. Shame on you.")
+            restartClick()
+        } else { result = input1 / input2 }
+    }
+
+    // if the result is float, fixes it to two decimal points
+    if ((result - Math.floor(result)) !== 0) result = result.toFixed(2);
+    // // displays on topDisplay
+    toDisplayTop(input1, symbol, input2, " =")
+    return result;
+};
+
+// --------------------------------------------------------
+// DISPLAYS FUNCTIONS
 // --------------------------------------------------------
 
 // displays the current value in the bottom display
@@ -190,43 +219,6 @@ function toDisplayTop(...items) {
 };
 
 // --------------------------------------------------------
-// OPERATION FUNCTIONS
-// --------------------------------------------------------
-
-// takes two input values and one operation function (below) and return the result
-function operate(input1, input2, operationToDo) {
-    let result = window[operationToDo](input1, input2);
-
-    // if the result is float, fixes it to two decimal points
-    if ((result - Math.floor(result)) !== 0) result = result.toFixed(2);
-    // displays on topDisplay
-    toDisplayTop(input1, opSign, input2, " =")
-    return result;
-};
-
-function add(val1, val2) {
-    return val1 + val2
-};
-
-function subtract(val1, val2) {
-    return val1 - val2
-};
-
-function multiply(val1, val2) {
-    return val1 * val2
-};
-
-function divide(val1, val2) {
-    // if user tries to divide by 0
-    if (val1 != 0 && val2 == 0 || val1 == 0 && val2 == 0) {
-        alert("Sir, you shouldn't do that. Shame on you.")
-        restartClick()
-    } else {
-        return val1 / val2;
-    };
-};
-
-// --------------------------------------------------------
 // OTHER FUNCTIONS
 // --------------------------------------------------------
 
@@ -236,7 +228,5 @@ function buttonSound() {
 };
 
 // --------------------------------------------------------
-
-currentYear.textContent = year;
 
 calculator()
